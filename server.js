@@ -6,85 +6,55 @@ const BOT_TOKEN = process.env.BOT_TOKEN;
 Client.on("ready", () => {
   console.log("Bot is Ready");
 
-  // Function to calculate the delay until the next :30 minute mark
-  function getNextInterval() {
-    const now = new Date();
-    const minutes = now.getUTCMinutes();
-    let nextAlertMinute;
-
-    // Always target the 30-minute mark
-    if (minutes < 30) {
-      nextAlertMinute = 27; // 3 minutes earlier than 30-minute mark
-    } else {
-      nextAlertMinute = 57; // 3 minutes earlier than the next full hour (i.e., 60 minutes)
-    }
-
-    // Calculate the delay in minutes until the next alert
-    const delayMinutes = (nextAlertMinute - minutes + 60) % 60;
-    const delay = delayMinutes * 60 * 1000 - (now.getUTCSeconds() * 1000); // Convert to milliseconds
-
-    console.log(`Next alert in ${delayMinutes} minutes.`);
-    return delay;
-  }
-
-  // Function to send the reminder message to the "reminder" channel
   function sendReminderMessage() {
-    const guild = Client.guilds.cache.first(); // Fetch the first guild the bot is in
+    const guild = Client.guilds.cache.first();
     if (guild) {
-      const reminderChannel = guild.channels.cache.find(c => c.name === "reminder" && c.isText()); // Find the "reminder" channel
+      const reminderChannel = guild.channels.cache.find(c => c.name === "reminder" && c.isText());
       if (reminderChannel) {
-        console.log('Sending reminder message!');
-        // Send the @here message 5 times with 5-second intervals
+        console.log('summon time!');
         let counter = 0;
         const interval = setInterval(() => {
           if (counter < 5) {
             reminderChannel.send("@here summon time");
             counter++;
           } else {
-            clearInterval(interval); // Stop after 5 messages
+            clearInterval(interval);
           }
-        }, 5000); // 5 seconds between messages
+        }, 5000);
       } else {
-        console.log('Channel "reminder" not found.');
+        console.log('channel reminder not found');
       }
     } else {
-      console.log('Bot is not in any guilds!');
+      console.log('not in a guild');
     }
   }
 
-  // Function to send the countdown to the "countdown" channel
   function sendCountdownMessage() {
-    const now = new Date();
-    const minutes = now.getUTCMinutes();
-    const seconds = now.getUTCSeconds();
-
-    const guild = Client.guilds.cache.first(); // Fetch the first guild the bot is in
+    const guild = Client.guilds.cache.first();
     if (guild) {
-      const countdownChannel = guild.channels.cache.find(c => c.name === "countdown" && c.isText()); // Find the "countdown" channel
+      const countdownChannel = guild.channels.cache.find(c => c.name === "countdown" && c.isText());
       if (countdownChannel) {
-        let nextAlertMinute = 27; // Always aim for 27 minutes (3 minutes before 0:30)
+        const now = new Date();
+        const minutes = now.getUTCMinutes();
+        const seconds = now.getUTCSeconds();
 
-        const minutesLeft = (nextAlertMinute - minutes + 60) % 60;
-        const timeLeft = `${minutesLeft}m until next summon`;
+        const minutesLeft = (29 - (minutes % 29) - 1);
+        const timeLeft = `${minutesLeft}m ${60 - seconds}s until next summon`;
 
-        console.log(timeLeft); // For logging purposes
-        countdownChannel.send(timeLeft); // Send the countdown message to the "countdown" channel
+        console.log(timeLeft);
+        countdownChannel.send(timeLeft);
       } else {
-        console.log('Channel "countdown" not found.');
+        console.log('channel countdown not found');
       }
     }
   }
 
-  // Start the countdown messages every minute (once per minute)
-  setInterval(sendCountdownMessage, 60000); // Every 60 seconds (1 minute)
+  setInterval(sendCountdownMessage, 60000);
 
-  // Wait until the next :30 minute mark (but send reminder 3 minutes earlier), then start sending reminders
   setTimeout(() => {
     sendReminderMessage();
-
-    // After the first message, send every 30 minutes
-    setInterval(sendReminderMessage, 30 * 60 * 1000); // Repeat every 30 minutes
-  }, getNextInterval()); // Start after the calculated delay
+    setInterval(sendReminderMessage, 29 * 60 * 1000);
+  }, 29 * 60 * 1000);
 });
 
 Client.on("message", (message) => {
