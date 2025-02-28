@@ -7,7 +7,8 @@ Client.on("ready", () => {
   console.log("Bot is Ready");
 
   function sendReminderMessage() {
-    Client.guilds.cache.forEach(guild => {
+    const guild = Client.guilds.cache.first();
+    if (guild) {
       const reminderChannel = guild.channels.cache.find(c => c.name === "reminder" && c.isText());
       if (reminderChannel) {
         console.log('summon time!');
@@ -21,13 +22,16 @@ Client.on("ready", () => {
           }
         }, 5000);
       } else {
-        console.log(`Channel reminder not found in guild: ${guild.name}`);
+        console.log('channel reminder not found');
       }
-    });
+    } else {
+      console.log('not in a guild');
+    }
   }
 
   function sendCountdownMessage() {
-    Client.guilds.cache.forEach(guild => {
+    const guild = Client.guilds.cache.first();
+    if (guild) {
       const countdownChannel = guild.channels.cache.find(c => c.name === "countdown" && c.isText());
       if (countdownChannel) {
         const now = new Date();
@@ -35,14 +39,14 @@ Client.on("ready", () => {
         const seconds = now.getUTCSeconds();
 
         const minutesLeft = (29 - (minutes % 29) - 1);
-        const timeLeft = `${minutesLeft}m ${60 - seconds}s until next summon`;
+        const timeLeft = ${minutesLeft}m ${60 - seconds}s until next summon;
 
         console.log(timeLeft);
         countdownChannel.send(timeLeft);
       } else {
-        console.log(`Channel countdown not found in guild: ${guild.name}`);
+        console.log('channel countdown not found');
       }
-    });
+    }
   }
 
   setInterval(sendCountdownMessage, 60000);
