@@ -39,7 +39,7 @@ Client.on("ready", () => {
         const seconds = now.getUTCSeconds();
 
         const minutesLeft = (29 - (minutes % 29) - 1);
-        const timeLeft = ${minutesLeft}m ${60 - seconds}s until next summon;
+        const timeLeft = `${minutesLeft}m ${60 - seconds}s until next summon`;
 
         console.log(timeLeft);
         countdownChannel.send(timeLeft);
